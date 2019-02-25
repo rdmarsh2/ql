@@ -4366,3 +4366,19 @@ ir.cpp:
 #  987|     v0_21(void)             = ReturnValue              : r0_20, mu0_2
 #  987|     v0_22(void)             = UnmodeledUse             : mu*
 #  987|     v0_23(void)             = ExitFunction             : 
+
+#  991| int ExprStmt(int)
+#  991|   Block 0
+#  991|     v0_0(void)       = EnterFunction            : 
+#  991|     mu0_1(unknown)   = AliasedDefinition        : 
+#  991|     mu0_2(unknown)   = UnmodeledDefinition      : 
+#  991|     r0_3(glval<int>) = VariableAddress[x]       : 
+#  991|     mu0_4(int)       = InitializeParameter[x]   : r0_3
+#  992|     r0_5(glval<int>) = VariableAddress[#return] : 
+#  992|     r0_6(glval<int>) = VariableAddress[x]       : 
+#  992|     r0_7(int)        = Load                     : r0_6, mu0_2
+#  992|     mu0_8(int)       = Store                    : r0_5, r0_7
+#  991|     r0_9(glval<int>) = VariableAddress[#return] : 
+#  991|     v0_10(void)      = ReturnValue              : r0_9, mu0_2
+#  991|     v0_11(void)      = UnmodeledUse             : mu*
+#  991|     v0_12(void)      = ExitFunction             : 
