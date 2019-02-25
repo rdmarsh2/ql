@@ -6637,3 +6637,12 @@ ir.cpp:
 #  993|       0: x
 #  993|           Type = int
 #  993|           ValueCategory = prvalue(load)
+#  996| int ExprStmt(int)
+#  996|   params: 
+#  996|     0: x
+#  996|         Type = int
+#  996|   body: { ... }
+#  997|     0: return ...
+#  997|       0: (statement expression)
+#  997|           Type = int
+#  997|           ValueCategory = prvalue

@@ -993,6 +993,10 @@ int AsmStmt(int x) {
   return x;
 }
 
+int ExprStmt(int x) {
+  return ({x;});
+}
+
 #if 0
 void OperatorDelete() {
   delete static_cast<int*>(nullptr);  // No destructor
