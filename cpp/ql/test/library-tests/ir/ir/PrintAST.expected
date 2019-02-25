@@ -6627,3 +6627,13 @@ ir.cpp:
 #  988|                 Type = double
 #  988|                 Value = 1.0
 #  988|                 ValueCategory = prvalue
+#  991| int AsmStmt(int)
+#  991|   params: 
+#  991|     0: x
+#  991|         Type = int
+#  991|   body: { ... }
+#  992|     0: asm statement
+#  993|     1: return ...
+#  993|       0: x
+#  993|           Type = int
+#  993|           ValueCategory = prvalue(load)

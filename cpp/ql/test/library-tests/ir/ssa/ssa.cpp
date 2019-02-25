@@ -102,3 +102,8 @@ void MayPartiallyOverlapEscaped(int x, int y) {
   Point b = a;
   Escape(&a);
 }
+
+int AsmStmt(int *p) {
+  __asm__("");
+  return *p;
+}

@@ -988,6 +988,11 @@ int PointerDecay(int a[], int fn(float)) {
   return a[0] + fn(1.0);
 }
 
+int AsmStmt(int x) {
+  __asm__("");
+  return x;
+}
+
 #if 0
 void OperatorDelete() {
   delete static_cast<int*>(nullptr);  // No destructor

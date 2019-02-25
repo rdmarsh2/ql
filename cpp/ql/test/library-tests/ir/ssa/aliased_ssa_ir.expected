@@ -392,3 +392,22 @@ ssa.cpp:
 #  100|     v0_31(void)           = ReturnVoid              : 
 #  100|     v0_32(void)           = UnmodeledUse            : mu*
 #  100|     v0_33(void)           = ExitFunction            : 
+
+#  106| int AsmStmt(int*)
+#  106|   Block 0
+#  106|     v0_0(void)         = EnterFunction            : 
+#  106|     m0_1(unknown)      = AliasedDefinition        : 
+#  106|     mu0_2(unknown)     = UnmodeledDefinition      : 
+#  106|     r0_3(glval<int *>) = VariableAddress[p]       : 
+#  106|     m0_4(int *)        = InitializeParameter[p]   : r0_3
+#  107|     m0_5(unknown)      = InlineAsm                : mu0_2
+#  107|     m0_6(unknown)      = Chi                      : m0_1, m0_5
+#  108|     r0_7(glval<int>)   = VariableAddress[#return] : 
+#  108|     r0_8(glval<int *>) = VariableAddress[p]       : 
+#  108|     r0_9(int *)        = Load                     : r0_8, m0_4
+#  108|     r0_10(int)         = Load                     : r0_9, m0_6
+#  108|     m0_11(int)         = Store                    : r0_7, r0_10
+#  106|     r0_12(glval<int>)  = VariableAddress[#return] : 
+#  106|     v0_13(void)        = ReturnValue              : r0_12, m0_11
+#  106|     v0_14(void)        = UnmodeledUse             : mu*
+#  106|     v0_15(void)        = ExitFunction             : 
