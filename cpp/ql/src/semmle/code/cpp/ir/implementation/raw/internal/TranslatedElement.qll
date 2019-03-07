@@ -10,7 +10,7 @@ private import TranslatedCondition
 private import TranslatedFunction
 private import TranslatedStmt
 private import IRConstruction
-
+private import semmle.code.cpp.models.interfaces.SideEffect
 /**
  * Gets the built-in `int` type.
  */
@@ -370,6 +370,14 @@ newtype TTranslatedElement =
   // The declaration/initialization part of a `ConditionDeclExpr`
   TTranslatedConditionDecl(ConditionDeclExpr expr) {
     not ignoreExpr(expr)
+  } or
+  // The side effects of a `Call` {
+  TTranslatedSideEffects(Call expr) {
+    (
+      expr.getTarget().(SideEffectFunction).hasSpecificReadSideEffect(_, _) or
+      expr.getTarget().(SideEffectFunction).hasSpecificWriteSideEffect(_, _, _)
+    ) and
+    not ignoreExpr(expr)
   }
 
 /**
@@ -566,6 +574,14 @@ abstract class TranslatedElement extends TTranslatedElement {
    * `Field` for that instruction.
    */
   Field getInstructionField(InstructionTag tag) {
+    none()
+  }
+  
+  /**
+   * If the instruction specified by `tag` is a `ParameterInstruction`, gets the
+   * `Parameter` for that instruction.
+   */
+  Parameter getInstructionParameter(InstructionTag tag) {
     none()
   }
   

@@ -326,6 +326,10 @@ cached private module Cached {
     result = getOldInstruction(instruction).(OldIR::FieldInstruction).getField()
   }
 
+  cached Parameter getInstructionParameter(Instruction instruction) {
+    result = getOldInstruction(instruction).(OldIR::ParameterInstruction).getParameter()
+  }
+
   cached Function getInstructionFunction(Instruction instruction) {
     result = getOldInstruction(instruction).(OldIR::FunctionInstruction).getFunctionSymbol()
   }

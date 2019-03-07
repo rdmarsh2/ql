@@ -206,6 +206,11 @@ cached private module Cached {
     )
   }
 
+  cached Parameter getInstructionParameter(Instruction instruction) {
+    result = getInstructionTranslatedElement(instruction).getInstructionParameter(
+      getInstructionTag(instruction))
+  }
+
   cached Function getInstructionFunction(Instruction instruction) {
     result = getInstructionTranslatedElement(instruction)
             .getInstructionFunction(getInstructionTag(instruction))

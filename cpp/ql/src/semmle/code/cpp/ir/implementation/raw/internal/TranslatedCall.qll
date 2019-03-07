@@ -19,7 +19,8 @@ abstract class TranslatedCall extends TranslatedExpr {
     // calls.
     id = -2 and result = getQualifier() or
     id = -1 and result = getCallTarget() or
-    result = getArgument(id)
+    result = getArgument(id) or
+    id = getNumberOfArguments() and result = getSideEffects()
   }
 
   override final Instruction getFirstInstruction() {
@@ -80,13 +81,15 @@ abstract class TranslatedCall extends TranslatedExpr {
         tag = CallTag() and
         if hasSideEffect() then
           result = getInstruction(CallSideEffectTag())
+        else if hasPreciseSideEffect() then
+          result = getSideEffects().getFirstInstruction()
         else
-          result = getParent().getChildSuccessor(this)
+          result =  getParent().getChildSuccessor(this) 
       ) or
       (
         hasSideEffect() and
         tag = CallSideEffectTag() and
-        result = getParent().getChildSuccessor(this)
+        result =  getParent().getChildSuccessor(this) 
       )
     )
   }
@@ -191,6 +194,8 @@ abstract class TranslatedCall extends TranslatedExpr {
    */
   abstract TranslatedExpr getArgument(int index);
 
+  abstract int getNumberOfArguments();
+
   /**
    * If there are any arguments, gets the first instruction of the first
    * argument. Otherwise, returns the call instruction.
@@ -218,11 +223,18 @@ abstract class TranslatedCall extends TranslatedExpr {
   private predicate hasSideEffect() {
     hasReadSideEffect() or hasWriteSideEffect()
   }
-
   override Instruction getPrimaryInstructionForSideEffect(InstructionTag tag) {
       hasSideEffect() and
       tag = CallSideEffectTag() and
       result = getResult()
+	}
+
+	predicate hasPreciseSideEffect() {
+    none()
+  }
+  
+  TranslatedSideEffects getSideEffects() {
+    result.getCall() = expr
   }
 }
 
@@ -287,6 +299,10 @@ abstract class TranslatedCallExpr extends TranslatedNonConstantExpr,
   override final TranslatedExpr getArgument(int index) {
     result = getTranslatedExpr(expr.getArgument(index).getFullyConverted())
   }
+
+  override final int getNumberOfArguments() {
+    result = expr.getNumberOfArguments()
+  }
 }
 
 /**
@@ -294,7 +310,6 @@ abstract class TranslatedCallExpr extends TranslatedNonConstantExpr,
  */
 class TranslatedExprCall extends TranslatedCallExpr {
   override ExprCall expr;
-
 
   override TranslatedExpr getCallTarget() {
     result = getTranslatedExpr(expr.getExpr().getFullyConverted())
@@ -318,6 +333,7 @@ class TranslatedFunctionCall extends TranslatedCallExpr, TranslatedDirectCall {
   override predicate hasWriteSideEffect() {
     not expr.getTarget().(SideEffectFunction).neverWritesMemory()
   }
+
 }
 
 /**
@@ -338,5 +354,114 @@ class TranslatedStructorCall extends TranslatedFunctionCall {
 
   override predicate hasQualifier() {
     any()
+  }
+}
+
+
+class TranslatedSideEffects extends TranslatedElement, TTranslatedSideEffects {
+  Call expr;
+  
+  TranslatedSideEffects() {
+    this = TTranslatedSideEffects(expr)
+  }
+
+  override string toString() {
+    result = "(side effects  for " + expr.toString() + ")"
+  }
+  
+  override Locatable getAST() {
+    result = expr
+  }
+
+  Call getCall() {
+    result = expr
+  }
+
+  override TranslatedElement getChild(int i) {
+    none()
+  }
+
+  override Instruction getChildSuccessor(TranslatedElement te) {
+    none()
+  }
+
+  override predicate hasInstruction(Opcode opcode, InstructionTag tag, Type t, boolean isGLValue) {
+    exists(int i |
+      hasSpecificWriteSideEffect(i, opcode) and
+      tag = WriteSideEffectTag(i) and
+      t = expr.getArgument(i).getType().getUnspecifiedType().(PointerType).getBaseType() and
+      isGLValue = false
+    ) or
+    exists(int i |
+      hasSpecificReadSideEffect(i, opcode) and
+      tag = ReadSideEffectTag(i) and
+      t = expr.getArgument(i).getType().getUnspecifiedType().(PointerType).getBaseType() and
+      isGLValue = false
+    )
+  }
+
+  override Instruction getFirstInstruction() {
+    result = getInstruction(getTagForIndex(0))
+  }
+
+  InstructionTag getTagForIndex(int i) {
+    result = rank[i](InstructionTag tag, int isWrite, int index |
+      hasInstruction(_, tag, _, _) and
+      (
+        tag = ReadSideEffectTag(index) and
+        isWrite = 0
+        or
+        tag = WriteSideEffectTag(index) and
+        isWrite = 1
+      )
+      |
+      tag order by isWrite, index
+    )
+  }
+
+  override Instruction getInstructionSuccessor(InstructionTag tag, EdgeKind kind) {
+    exists(int i | getTagForIndex(i) = tag and
+      if exists(getTagForIndex(i + 1)) then
+        result = getInstruction(getTagForIndex(i + 1))
+      else
+        result = getParent().getChildSuccessor(this)
+    ) and
+    kind instanceof GotoEdge
+  }
+
+  override Function getFunction() {
+    result = expr.getEnclosingFunction()
+  }
+
+  override Parameter getInstructionParameter(InstructionTag tag) {
+    exists(int index |
+      tag = ReadSideEffectTag(index) 
+      or
+      tag = WriteSideEffectTag(index)
+      |
+      result = expr.getTarget().getParameter(index)
+    )
+  }
+
+  predicate hasSpecificWriteSideEffect(ParameterIndex i, Opcode op) {
+    exists(boolean buffer, boolean mayWrite |
+      expr.getTarget().(SideEffectFunction).hasSpecificWriteSideEffect(i, buffer, mayWrite) and
+      (
+        buffer = true and mayWrite = true and op instanceof Opcode::BufferMayWriteSideEffect or
+        buffer = false and mayWrite = true and op instanceof Opcode::IndirectMayWriteSideEffect or
+        buffer = true and mayWrite = false and op instanceof Opcode::BufferMustWriteSideEffect or
+        buffer = false and mayWrite = false and op instanceof Opcode::IndirectMustWriteSideEffect
+      )
+    )
+  }
+
+  predicate hasSpecificReadSideEffect(ParameterIndex i, Opcode t) {
+    exists(boolean buffer |
+      expr.getTarget().(SideEffectFunction).hasSpecificReadSideEffect(i, buffer) and
+      (
+        buffer = true and t instanceof Opcode::BufferReadSideEffect or
+        buffer = false and t instanceof Opcode::IndirectReadSideEffect
+      )
+    )
   }
 }

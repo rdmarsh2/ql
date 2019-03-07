@@ -131,12 +131,17 @@ abstract class ReadSideEffectOpcode extends SideEffectOpcode {}
  * An opcode that writes to a set of memory locations as a side effect.
  */
 abstract class WriteSideEffectOpcode extends SideEffectOpcode {}
+ 
+/**
+ * An opcode that definitely writes to a set of memory locations as a side effect.
+ */
+abstract class MustWriteSideEffectOpcode extends WriteSideEffectOpcode {}
 
 /**
  * An opcode that may overwrite some, all, or none of an existing set of memory locations. Modeled
  * as a read of the original contents, plus a "may" write of the new contents.
  */
-abstract class MayWriteSideEffectOpcode extends SideEffectOpcode {}
+abstract class MayWriteSideEffectOpcode extends WriteSideEffectOpcode {}
 
 /**
  * An opcode that accesses a buffer via an `AddressOperand` and a `BufferSizeOperand`.
@@ -208,10 +213,10 @@ module Opcode {
   class CallSideEffect extends MayWriteSideEffectOpcode, TCallSideEffect { override final string toString() { result = "CallSideEffect" } }
   class CallReadSideEffect extends ReadSideEffectOpcode, TCallReadSideEffect { override final string toString() { result = "CallReadSideEffect" } }
   class IndirectReadSideEffect extends ReadSideEffectOpcode, MemoryAccessOpcode, TIndirectReadSideEffect { override final string toString() { result = "IndirectReadSideEffect" } }
-  class IndirectWriteSideEffect extends WriteSideEffectOpcode, MemoryAccessOpcode, TIndirectWriteSideEffect { override final string toString() { result = "IndirectWriteSideEffect" } }
+  class IndirectMustWriteSideEffect extends MustWriteSideEffectOpcode, MemoryAccessOpcode, TIndirectWriteSideEffect { override final string toString() { result = "IndirectWriteSideEffect" } }
   class IndirectMayWriteSideEffect extends MayWriteSideEffectOpcode, MemoryAccessOpcode, TIndirectMayWriteSideEffect { override final string toString() { result = "IndirectMayWriteSideEffect" } }
   class BufferReadSideEffect extends ReadSideEffectOpcode, BufferAccessOpcode, TBufferReadSideEffect { override final string toString() { result = "BufferReadSideEffect" } }
-  class BufferWriteSideEffect extends WriteSideEffectOpcode, BufferAccessOpcode, TBufferWriteSideEffect { override final string toString() { result = "BufferWriteSideEffect" } }
+  class BufferMustWriteSideEffect extends MustWriteSideEffectOpcode, BufferAccessOpcode, TBufferWriteSideEffect { override final string toString() { result = "BufferWriteSideEffect" } }
   class BufferMayWriteSideEffect extends MayWriteSideEffectOpcode, BufferAccessOpcode, TBufferMayWriteSideEffect { override final string toString() { result = "BufferMayWriteSideEffect" } }
   class Chi extends Opcode, TChi { override final string toString() { result = "Chi" } }
   class Unreached extends Opcode, TUnreached { override final string toString() { result = "Unreached" } }

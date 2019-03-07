@@ -614,6 +614,22 @@ class FieldInstruction extends Instruction {
   }
 }
 
+class ParameterInstruction extends Instruction {
+  Parameter parameter;
+
+  ParameterInstruction() {
+    parameter = Construction::getInstructionParameter(this)
+  }
+
+  override final string getImmediateString() {
+    result = parameter.toString()
+  }
+
+  final Parameter getParameter() {
+    result = parameter
+  }
+}
+
 class FunctionInstruction extends Instruction {
   Function funcSymbol;
 
@@ -1397,7 +1413,7 @@ class CallReadSideEffectInstruction extends SideEffectInstruction {
 /**
  * An instruction representing the read of an indirect parameter within a function call.
  */
-class IndirectReadSideEffectInstruction extends SideEffectInstruction {
+class IndirectReadSideEffectInstruction extends ParameterInstruction, SideEffectInstruction {
   IndirectReadSideEffectInstruction() {
     getOpcode() instanceof Opcode::IndirectReadSideEffect
   }
@@ -1406,18 +1422,31 @@ class IndirectReadSideEffectInstruction extends SideEffectInstruction {
 /**
  * An instruction representing the read of an indirect buffer parameter within a function call.
  */
-class BufferReadSideEffectInstruction extends SideEffectInstruction {
+class BufferReadSideEffectInstruction extends ParameterInstruction, SideEffectInstruction {
   BufferReadSideEffectInstruction() {
     getOpcode() instanceof Opcode::BufferReadSideEffect
   }
 }
 
 /**
+ * An instruction representing a side effect of a function call.
+ */
+class WriteSideEffectInstruction extends ParameterInstruction, SideEffectInstruction {
+  WriteSideEffectInstruction() {
+    getOpcode() instanceof WriteSideEffectOpcode
+  }
+
+  Instruction getArgumentInstruction() {
+    result = getPrimaryInstruction().(CallInstruction).getPositionalArgument(this.getParameter().getIndex())
+  }
+}
+
+/**
  * An instruction representing the write of an indirect parameter within a function call.
  */
-class IndirectWriteSideEffectInstruction extends SideEffectInstruction {
-  IndirectWriteSideEffectInstruction() {
-    getOpcode() instanceof Opcode::IndirectWriteSideEffect
+class IndirectMustWriteSideEffectInstruction extends WriteSideEffectInstruction {
+  IndirectMustWriteSideEffectInstruction() {
+    getOpcode() instanceof Opcode::IndirectMustWriteSideEffect
   }
 
   override final MemoryAccessKind getResultMemoryAccess() {
@@ -1429,9 +1458,9 @@ class IndirectWriteSideEffectInstruction extends SideEffectInstruction {
  * An instruction representing the write of an indirect buffer parameter within a function call. The
  * entire buffer is overwritten.
  */
-class BufferWriteSideEffectInstruction extends SideEffectInstruction {
-  BufferWriteSideEffectInstruction() {
-    getOpcode() instanceof Opcode::BufferWriteSideEffect
+class BufferMustWriteSideEffectInstruction extends WriteSideEffectInstruction {
+  BufferMustWriteSideEffectInstruction() {
+    getOpcode() instanceof Opcode::BufferMustWriteSideEffect
   }
 
   override final MemoryAccessKind getResultMemoryAccess() {
@@ -1444,7 +1473,7 @@ class BufferWriteSideEffectInstruction extends SideEffectInstruction {
  * Unlike `IndirectWriteSideEffectInstruction`, the location might not be completely overwritten.
  * written.
  */
-class IndirectMayWriteSideEffectInstruction extends SideEffectInstruction {
+class IndirectMayWriteSideEffectInstruction extends WriteSideEffectInstruction {
   IndirectMayWriteSideEffectInstruction() {
     getOpcode() instanceof Opcode::IndirectMayWriteSideEffect
   }
@@ -1458,7 +1487,7 @@ class IndirectMayWriteSideEffectInstruction extends SideEffectInstruction {
  * An instruction representing the write of an indirect buffer parameter within a function call.    
  * Unlike `BufferWriteSideEffectInstruction`, the buffer might not be completely overwritten.
  */
-class BufferMayWriteSideEffectInstruction extends SideEffectInstruction {
+class BufferMayWriteSideEffectInstruction extends WriteSideEffectInstruction {
   BufferMayWriteSideEffectInstruction() {
     getOpcode() instanceof Opcode::BufferMayWriteSideEffect
   }
