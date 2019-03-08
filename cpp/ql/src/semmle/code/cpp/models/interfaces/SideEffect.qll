@@ -9,6 +9,7 @@
 
 import semmle.code.cpp.Function
 import semmle.code.cpp.models.Models
+import semmle.code.cpp.models.interfaces.FunctionInputsAndOutputs
 
 /**
   * Models the side effects of a library function.
@@ -27,4 +28,13 @@ abstract class SideEffectFunction extends Function {
     * from a pointer that was passed into the function.
     */
   abstract predicate neverWritesMemory();
+  
+  predicate hasSpecificWriteSideEffect(ParameterIndex i, boolean buffer, boolean mustWrite) {
+    none()
+  }
+
+  
+  predicate hasSpecificReadSideEffect(ParameterIndex i, boolean buffer) {
+    none()
+  }
 }

@@ -31,7 +31,6 @@ module InstructionSanity {
           )
         ) or
         opcode instanceof MemoryAccessOpcode and tag instanceof AddressOperandTag or
-        opcode instanceof BufferAccessOpcode and tag instanceof BufferSizeOperand or
         opcode instanceof OpcodeWithCondition and tag instanceof ConditionOperandTag or
         opcode instanceof OpcodeWithLoad and tag instanceof LoadOperandTag or
         opcode instanceof Opcode::Store and tag instanceof StoreValueOperandTag or

@@ -1,13 +1,14 @@
 import semmle.code.cpp.Function
 import semmle.code.cpp.models.interfaces.ArrayFunction
 import semmle.code.cpp.models.interfaces.DataFlow
+import semmle.code.cpp.models.interfaces.SideEffect
 import semmle.code.cpp.models.interfaces.Taint
 
 /**
  * The standard functions `memcpy` and `memmove`, and the gcc variant
  * `__builtin___memcpy_chk`
  */
-class MemcpyFunction extends ArrayFunction, DataFlowFunction, TaintFunction {
+class MemcpyFunction extends ArrayFunction, DataFlowFunction, SideEffectFunction, TaintFunction {
   MemcpyFunction() {
     this.hasName("memcpy") or
     this.hasName("memmove") or
@@ -51,5 +52,21 @@ class MemcpyFunction extends ArrayFunction, DataFlowFunction, TaintFunction {
       bufParam = 1
     ) and
     countParam = 2
+  }
+  
+  override predicate neverWritesMemory() {
+    any()
+  }
+  
+  override predicate neverReadsMemory() {
+    any()
+  }
+  
+  override predicate hasSpecificWriteSideEffect(ParameterIndex i, boolean buffer, boolean mustWrite) {
+    i = 0 and buffer = true and mustWrite = true
+  }
+
+  override predicate hasSpecificReadSideEffect(ParameterIndex i, boolean buffer) {
+    i = 1 and buffer = true
   }
 }

@@ -4861,3 +4861,30 @@ ir.cpp:
 # 1045|     v0_29(void)                                   = ReturnValue              : r0_28, mu0_2
 # 1045|     v0_30(void)                                   = UnmodeledUse             : mu*
 # 1045|     v0_31(void)                                   = ExitFunction             : 
+
+# 1068| int ModeledCallTarget(int)
+# 1068|   Block 0
+# 1068|     v0_0(void)           = EnterFunction                  : 
+# 1068|     mu0_1(unknown)       = AliasedDefinition              : 
+# 1068|     mu0_2(unknown)       = UnmodeledDefinition            : 
+# 1068|     r0_3(glval<int>)     = VariableAddress[x]             : 
+# 1068|     mu0_4(int)           = InitializeParameter[x]         : r0_3
+# 1069|     r0_5(glval<int>)     = VariableAddress[y]             : 
+# 1069|     mu0_6(int)           = Uninitialized[y]               : r0_5
+# 1070|     r0_7(glval<unknown>) = FunctionAddress[memcpy]        : 
+# 1070|     r0_8(glval<int>)     = VariableAddress[y]             : 
+# 1070|     r0_9(void *)         = Convert                        : r0_8
+# 1070|     r0_10(glval<int>)    = VariableAddress[x]             : 
+# 1070|     r0_11(void *)        = Convert                        : r0_10
+# 1070|     r0_12(int)           = Constant[4]                    : 
+# 1070|     r0_13(void *)        = Call                           : r0_7, r0_9, r0_11, r0_12
+# 1070|     r0_14(int)           = ^BufferReadSideEffect[src]     : r0_11, mu0_2
+# 1070|     mu0_15(int)          = ^BufferMayWriteSideEffect[dst] : r0_9, mu0_2
+# 1071|     r0_16(glval<int>)    = VariableAddress[#return]       : 
+# 1071|     r0_17(glval<int>)    = VariableAddress[y]             : 
+# 1071|     r0_18(int)           = Load                           : r0_17, mu0_2
+# 1071|     mu0_19(int)          = Store                          : r0_16, r0_18
+# 1068|     r0_20(glval<int>)    = VariableAddress[#return]       : 
+# 1068|     v0_21(void)          = ReturnValue                    : r0_20, mu0_2
+# 1068|     v0_22(void)          = UnmodeledUse                   : mu*
+# 1068|     v0_23(void)          = ExitFunction                   : 

@@ -383,3 +383,30 @@ ssa.cpp:
 #  100|     v0_27(void)           = ReturnVoid              : 
 #  100|     v0_28(void)           = UnmodeledUse            : mu*
 #  100|     v0_29(void)           = ExitFunction            : 
+
+#  108| int ModeledCallTarget(int)
+#  108|   Block 0
+#  108|     v0_0(void)           = EnterFunction                  : 
+#  108|     mu0_1(unknown)       = AliasedDefinition              : 
+#  108|     mu0_2(unknown)       = UnmodeledDefinition            : 
+#  108|     r0_3(glval<int>)     = VariableAddress[x]             : 
+#  108|     mu0_4(int)           = InitializeParameter[x]         : r0_3
+#  109|     r0_5(glval<int>)     = VariableAddress[y]             : 
+#  109|     mu0_6(int)           = Uninitialized[y]               : r0_5
+#  110|     r0_7(glval<unknown>) = FunctionAddress[memcpy]        : 
+#  110|     r0_8(glval<int>)     = VariableAddress[y]             : 
+#  110|     r0_9(void *)         = Convert                        : r0_8
+#  110|     r0_10(glval<int>)    = VariableAddress[x]             : 
+#  110|     r0_11(void *)        = Convert                        : r0_10
+#  110|     r0_12(int)           = Constant[4]                    : 
+#  110|     r0_13(void *)        = Call                           : r0_7, r0_9, r0_11, r0_12
+#  110|     r0_14(int)           = ^BufferReadSideEffect[src]     : r0_11, mu0_2
+#  110|     mu0_15(int)          = ^BufferMayWriteSideEffect[dst] : r0_9, mu0_2
+#  111|     r0_16(glval<int>)    = VariableAddress[#return]       : 
+#  111|     r0_17(glval<int>)    = VariableAddress[y]             : 
+#  111|     r0_18(int)           = Load                           : r0_17, mu0_2
+#  111|     m0_19(int)           = Store                          : r0_16, r0_18
+#  108|     r0_20(glval<int>)    = VariableAddress[#return]       : 
+#  108|     v0_21(void)          = ReturnValue                    : r0_20, m0_19
+#  108|     v0_22(void)          = UnmodeledUse                   : mu*
+#  108|     v0_23(void)          = ExitFunction                   : 

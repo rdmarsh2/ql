@@ -102,3 +102,12 @@ void MayPartiallyOverlapEscaped(int x, int y) {
   Point b = a;
   Escape(&a);
 }
+
+void *memcpy(void *dst, void *src, int size);
+
+int ModeledCallTarget(int x) {
+  int y;
+  memcpy(&y, &x, sizeof(int));
+  return y;
+}
+

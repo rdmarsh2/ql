@@ -7463,3 +7463,56 @@ ir.cpp:
 #-----|               -1: this
 #-----|                   Type = const lambda [] type at line 1045, col. 23 *
 #-----|                   ValueCategory = prvalue(load)
+# 1066| void* memcpy(void*, void*, int)
+# 1066|   params: 
+# 1066|     0: dst
+# 1066|         Type = void *
+# 1066|     1: src
+# 1066|         Type = void *
+# 1066|     2: size
+# 1066|         Type = int
+# 1068| int ModeledCallTarget(int)
+# 1068|   params: 
+# 1068|     0: x
+# 1068|         Type = int
+# 1068|   body: { ... }
+# 1069|     0: declaration
+# 1069|       0: definition of y
+# 1069|           Type = int
+# 1070|     1: ExprStmt
+# 1070|       0: call to memcpy
+# 1070|           Type = void *
+# 1070|           ValueCategory = prvalue
+# 1070|         0: (void *)...
+# 1070|             Conversion = pointer conversion
+# 1070|             Type = void *
+# 1070|             ValueCategory = prvalue
+# 1070|           expr: & ...
+# 1070|               Type = int *
+# 1070|               ValueCategory = prvalue
+# 1070|             0: y
+# 1070|                 Type = int
+# 1070|                 ValueCategory = lvalue
+# 1070|         1: (void *)...
+# 1070|             Conversion = pointer conversion
+# 1070|             Type = void *
+# 1070|             ValueCategory = prvalue
+# 1070|           expr: & ...
+# 1070|               Type = int *
+# 1070|               ValueCategory = prvalue
+# 1070|             0: x
+# 1070|                 Type = int
+# 1070|                 ValueCategory = lvalue
+# 1070|         2: (int)...
+# 1070|             Conversion = integral conversion
+# 1070|             Type = int
+# 1070|             Value = 4
+# 1070|             ValueCategory = prvalue
+# 1070|           expr: sizeof(int)
+# 1070|               Type = unsigned long
+# 1070|               Value = 4
+# 1070|               ValueCategory = prvalue
+# 1071|     2: return ...
+# 1071|       0: y
+# 1071|           Type = int
+# 1071|           ValueCategory = prvalue(load)

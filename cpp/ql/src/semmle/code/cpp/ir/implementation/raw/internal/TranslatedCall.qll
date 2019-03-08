@@ -5,6 +5,7 @@ private import semmle.code.cpp.models.interfaces.SideEffect
 private import InstructionTag
 private import TranslatedElement
 private import TranslatedExpr
+private import TranslatedFunction
 
 /**
  * The IR translation of a call to a function. The call may be from an actual
@@ -70,7 +71,11 @@ abstract class TranslatedCall extends TranslatedExpr {
         result = getArgument(argIndex + 1).getFirstInstruction()
       else
         result = getInstruction(CallTag())
-    )
+    ) or
+		(
+		   child = getSideEffects() and
+			 result = getParent().getChildSuccessor(this)
+		)
   }
 
   override Instruction getInstructionSuccessor(InstructionTag tag,
@@ -333,7 +338,12 @@ class TranslatedFunctionCall extends TranslatedCallExpr, TranslatedDirectCall {
   override predicate hasWriteSideEffect() {
     not expr.getTarget().(SideEffectFunction).neverWritesMemory()
   }
-
+	
+	override predicate hasPreciseSideEffect() {
+    expr.getTarget().(SideEffectFunction).hasSpecificReadSideEffect(_, _)
+		or
+    expr.getTarget().(SideEffectFunction).hasSpecificWriteSideEffect(_, _, _)
+  }
 }
 
 /**
@@ -401,7 +411,7 @@ class TranslatedSideEffects extends TranslatedElement, TTranslatedSideEffects {
   }
 
   override Instruction getFirstInstruction() {
-    result = getInstruction(getTagForIndex(0))
+    result = getInstruction(getTagForIndex(1))
   }
 
   InstructionTag getTagForIndex(int i) {
@@ -429,6 +439,35 @@ class TranslatedSideEffects extends TranslatedElement, TTranslatedSideEffects {
     kind instanceof GotoEdge
   }
 
+	override Instruction getInstructionOperand(InstructionTag tag,
+    OperandTag operandTag) {
+		operandTag instanceof AddressOperandTag and
+		result = getParent().(TranslatedCall).getArgument(getInstructionParameter(tag).getIndex()).getResult()
+		or
+		operandTag instanceof SideEffectOperandTag and
+		expr.getTarget().(SideEffectFunction).hasSpecificWriteSideEffect(getInstructionParameter(tag).getIndex(), _, true) and
+		result = getEnclosingFunction().getUnmodeledDefinitionInstruction()
+		or
+		operandTag instanceof SideEffectOperandTag and
+		expr.getTarget().(SideEffectFunction).hasSpecificReadSideEffect(getInstructionParameter(tag).getIndex(), _) and
+		result = getEnclosingFunction().getUnmodeledDefinitionInstruction()
+	}
+
+	override Type getInstructionOperandType(InstructionTag tag, TypedOperandTag operandTag) {
+	  result = getInstructionParameter(tag).getType().getUnspecifiedType().(DerivedType).getBaseType() and
+		operandTag instanceof SideEffectOperandTag
+	}
+
+  /**
+   * Gets the `TranslatedFunction` containing this expression.
+   */
+  final TranslatedFunction getEnclosingFunction() {
+    result = getTranslatedFunction(expr.getEnclosingFunction())
+  }
+
+  /**
+   * Gets the `TranslatedFunction` containing this expression.
+   */
   override Function getFunction() {
     result = expr.getEnclosingFunction()
   }
