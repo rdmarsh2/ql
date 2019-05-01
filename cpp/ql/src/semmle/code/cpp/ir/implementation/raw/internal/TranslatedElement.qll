@@ -378,6 +378,17 @@ newtype TTranslatedElement =
       expr.getTarget().(SideEffectFunction).hasSpecificWriteSideEffect(_, _, _)
     ) and
     not ignoreExpr(expr)
+  } or  // The side effects of a `Call` {
+  TTranslatedArgumentSideEffect(Call call, Expr expr, int n, boolean isWrite) {
+		 expr = call.getArgument(n).getFullyConverted() and
+		(
+      call.getTarget().(SideEffectFunction).hasSpecificReadSideEffect(n, _) and
+			isWrite = false
+			or
+      call.getTarget().(SideEffectFunction).hasSpecificWriteSideEffect(n, _, _) and
+			isWrite = true
+    ) and
+    not ignoreExpr(expr)
   }
 
 /**
