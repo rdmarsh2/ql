@@ -44,6 +44,9 @@ class Node extends Instruction {
   /** Gets the parameter corresponding to this node, if any. */
   Parameter asParameter() { result = this.(InitializeParameterInstruction).getParameter() }
 
+  /** Gets the argument that defines this `DefinitionByReferenceNode`, if any. */
+  Expr asDefiningArgument() { result = this.(DefinitionByReferenceNode).getArgument() }
+
   /**
    * Gets the uninitialized local variable corresponding to this node, if
    * any.
@@ -91,6 +94,21 @@ class ParameterNode extends Node, InitializeParameterInstruction {
   predicate isParameterOf(Function f, int i) {
     f.getParameter(i) = getParameter()
   }
+}
+
+/**
+ * A node that represents the value of a variable after a function call that
+ * may have changed the variable because it's passed by reference.
+ *
+ * A typical example would be a call `f(&x)`. Firstly, there will be flow into
+ * `x` from previous definitions of `x`. Secondly, there will be a
+ * `DefinitionByReferenceNode` to represent the value of `x` after the call has
+ * returned. This node will have its `getArgument()` equal to `&x` and its
+ * `getVariableAccess()` equal to `x`.
+ */
+class DefinitionByReferenceNode extends Node, WriteSideEffectInstruction {
+  /** Gets the argument corresponding to this node. */
+  Expr getArgument() { result = getArgumentInstruction().getUnconvertedResultExpression() }
 }
 
 /**
