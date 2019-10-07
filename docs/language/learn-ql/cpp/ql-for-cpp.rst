@@ -47,6 +47,23 @@ Advanced libraries
 
 - :doc:`Using hash consing and value numbering for C and C++ <value-numbering-hash-cons>` demonstrates how to recognize expressions that are syntactically identical or compute the same value at runtime.
 
+The C++ intermediate representation
+-----------------------------------
+
+.. toctree::
+   :hidden:
+
+   ir-guards
+   value-numbering
+   range-analysis
+
+The C++ intermediate representation provides a representation of program semantics in terms of simple semantic operations. This unifies different ways of espressing the same semantics, simplifying some analyses. Many advanced libraries are implemented using the intermediate representation.
+
+- :doc:`Using the guards library in C and C++ <ir-guards>` explains how to identify conditions that are used in branching decisions, and deal with bounds checks in a general way.
+
+- :doc:`Using value numbering for C and C++ <value-numbering>` demonstrates how to identify sets of expressions that will always have the same value at runtime.
+
+- :doc:`Using range analysis for C and C++ <range-analysis>` explains how to determine upper and lower bounds of expressions in terms of both constants and other expressions.
 
 Other resources
 ---------------

@@ -1,0 +1,35 @@
+
+Value numbering
+---------------
+The value numbering library (defined in ``semmle.code.cpp.ir.ValueNumber``) provides a mechanism for identifying expressions that compute the same value at runtime. Value numbering is useful when your primary concern is with the values being produced or the eventual machine code being run. For instance, value numbering might be used to determine whether a check is being done against the same value as the operation it is guarding.
+
+The value numbering API
+~~~~~~~~~~~~~~~~~~~~~~~
+The value numbering library exposes its interface primarily through the ``ValueNumber`` class. Each instance of ``ValueNumber`` represents a set of expressions that will always evaluate to the same value. To get an instruction in the set represented by a particular ``ValueNumber``, use the ``getAnInstruction()`` member predicate. Similarly, the ``getAUse()`` member predicate will get an operand for which the definition instruction is in the set.
+
+To get the ``ValueNumber`` of an ``Instruction``, use the ``valueNumber`` predicate. To get the ``ValueNumber`` of the definition instruction of an ``Operand``, use the ``valueNumberOfOperand`` predicate.
+
+.. note::
+
+    While the ``ValueNumber`` class has ``toString`` and ``getLocation`` methods, these are only provided as debugging aids. They give the ``toString`` and ``getLocation`` of an arbitrary ``Instruction`` within the set.
+
+Example Queries
+~~~~~~~~~~~~~~~
+
+This query uses the ``ValueNumber`` class to identify calls to ``strncpy`` where the size argument is derived from the source rather than the destination
+
+.. code-block:: ql
+
+    from CallInstruction ci, ValueNumber src, Instruction dest, CallInstruction strlenCall
+    where
+      ci.getStaticCallTarget().hasGlobalName("strncpy") and
+      dest = ci.getPositionalArgument(0) and
+      // the destination argument does not have the value number `src`
+      src.getAnInstruction() != dest and
+      // an instruction with the value number `src` is the source argument
+      src.getAnInstruction() = ci.getPositionalArgument(1) and
+      strlenCall = ci.getPositionalArgument(2) and
+      strlenCall.getStaticCallTarget().hasGlobalName("strlen") and
+      // an instruction with the value number `src` is the argument to the limit call
+      src.getAnInstruction() = strlenCall.getPositionalArgument(0)
+    select ci, "This call to strncpy is bounded by the size of the source rather than the destination"
