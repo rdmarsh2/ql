@@ -1123,6 +1123,22 @@ class SizedBufferMayWriteSideEffectInstruction extends WriteSideEffectInstructio
 }
 
 /**
+ * An instruction representing the value of already-allocated memory returned from a function, e.g.
+ * the global memory returned by a call to `getenv`.
+ */
+class CallResultSideEffectInstruction extends SideEffectInstruction {
+  CallResultSideEffectInstruction() {
+    getOpcode() instanceof Opcode::CallResultSideEffect
+  }
+
+
+  /** Gets the operand for the address which this instruction writes. */
+  final AddressOperand getResultOperand() { result = getAnOperand() }
+
+  /** Gets the address which this instruction writes. */
+  final Instruction getResultDef() { result = getResultOperand().getDef() }}
+
+/**
  * An instruction representing the initial value of newly allocated memory, e.g. the result of a
  * call to `malloc`.
  */
