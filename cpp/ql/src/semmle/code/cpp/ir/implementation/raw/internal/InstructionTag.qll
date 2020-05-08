@@ -37,6 +37,7 @@ newtype TInstructionTag =
   CallTargetTag() or
   CallTag() or
   CallSideEffectTag() or
+  CallReturnSideEffectTag() or
   AllocationSizeTag() or
   AllocationElementSizeTag() or
   AllocationExtentConvertTag() or

@@ -10483,6 +10483,26 @@ ir.cpp:
 # 1315|         2: [VariableAccess] y
 # 1315|             Type = [IntType] int
 # 1315|             ValueCategory = prvalue(load)
+# 1318| [TopLevelFunction] char* getenv(char const*)
+# 1318|   params: 
+# 1318|     0: [Parameter] name
+# 1318|         Type = [PointerType] const char *
+# 1320| [TopLevelFunction] char* getenvWrapper(char*)
+# 1320|   params: 
+# 1320|     0: [Parameter] name
+# 1320|         Type = [CharPointerType] char *
+# 1320|   body: [Block] { ... }
+# 1321|     0: [ReturnStmt] return ...
+# 1321|       0: [FunctionCall] call to getenv
+# 1321|           Type = [CharPointerType] char *
+# 1321|           ValueCategory = prvalue
+# 1321|         0: [CStyleCast] (const char *)...
+# 1321|             Conversion = [PointerConversion] pointer conversion
+# 1321|             Type = [PointerType] const char *
+# 1321|             ValueCategory = prvalue
+# 1321|           expr: [VariableAccess] name
+# 1321|               Type = [CharPointerType] char *
+# 1321|               ValueCategory = prvalue(load)
 perf-regression.cpp:
 #    4| [CopyAssignmentOperator] Big& Big::operator=(Big const&)
 #    4|   params: 

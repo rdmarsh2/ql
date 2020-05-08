@@ -7541,6 +7541,34 @@ ir.cpp:
 # 1314|     v1314_12(void)       = AliasedUse                    : ~mu1314_4
 # 1314|     v1314_13(void)       = ExitFunction                  : 
 
+# 1320| char* getenvWrapper(char*)
+# 1320|   Block 0
+# 1320|     v1320_1(void)           = EnterFunction                : 
+# 1320|     mu1320_2(unknown)       = AliasedDefinition            : 
+# 1320|     mu1320_3(unknown)       = InitializeNonLocal           : 
+# 1320|     mu1320_4(unknown)       = UnmodeledDefinition          : 
+# 1320|     r1320_5(glval<char *>)  = VariableAddress[name]        : 
+# 1320|     mu1320_6(char *)        = InitializeParameter[name]    : &:r1320_5
+# 1320|     r1320_7(char *)         = Load                         : &:r1320_5, ~mu1320_4
+# 1320|     mu1320_8(unknown)       = InitializeIndirection[name]  : &:r1320_7
+# 1321|     r1321_1(glval<char *>)  = VariableAddress[#return]     : 
+# 1321|     r1321_2(glval<unknown>) = FunctionAddress[getenv]      : 
+# 1321|     r1321_3(glval<char *>)  = VariableAddress[name]        : 
+# 1321|     r1321_4(char *)         = Load                         : &:r1321_3, ~mu1320_4
+# 1321|     r1321_5(char *)         = Convert                      : r1321_4
+# 1321|     r1321_6(char *)         = Call                         : func:r1321_2, 0:r1321_5
+# 1321|     mu1321_7(unknown)       = ^CallSideEffect              : ~mu1320_4
+# 1321|     r1321_8(unknown)        = ^ReturnSideEffect            : &:r1321_6, ~mu1320_4
+# 1321|     v1321_9(void)           = ^BufferReadSideEffect[0]     : &:r1321_5, ~mu1320_4
+# 1321|     mu1321_10(unknown)      = ^BufferMayWriteSideEffect[0] : &:r1321_5
+# 1321|     mu1321_11(char *)       = Store                        : &:r1321_1, r1321_6
+# 1320|     v1320_9(void)           = ReturnIndirection[name]      : &:r1320_7, ~mu1320_4
+# 1320|     r1320_10(glval<char *>) = VariableAddress[#return]     : 
+# 1320|     v1320_11(void)          = ReturnValue                  : &:r1320_10, ~mu1320_4
+# 1320|     v1320_12(void)          = UnmodeledUse                 : mu*
+# 1320|     v1320_13(void)          = AliasedUse                   : ~mu1320_4
+# 1320|     v1320_14(void)          = ExitFunction                 : 
+
 perf-regression.cpp:
 #    6| void Big::Big()
 #    6|   Block 0

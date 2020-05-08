@@ -51,7 +51,13 @@ abstract class TranslatedCall extends TranslatedExpr {
         resultType = getVoidType()
       )
     )
+    or
+    tag = CallReturnSideEffectTag() and
+    opcode instanceof Opcode::CallResultSideEffect and
+    hasReturnSideEffect(resultType)
   }
+
+  predicate hasReturnSideEffect(CppType effectType) { none() }
 
   override Instruction getChildSuccessor(TranslatedElement child) {
     child = getQualifier() and
@@ -79,14 +85,28 @@ abstract class TranslatedCall extends TranslatedExpr {
         if hasSideEffect()
         then result = getInstruction(CallSideEffectTag())
         else
+          if hasReturnSideEffect(_)
+          then result = getInstruction(CallReturnSideEffectTag())
+          else
+            if hasPreciseSideEffect()
+            then result = getSideEffects().getFirstInstruction()
+            else result = getParent().getChildSuccessor(this)
+      )
+      or
+      (
+        hasSideEffect() and
+        tag = CallSideEffectTag() and
+        if hasReturnSideEffect(_)
+        then result = getInstruction(CallReturnSideEffectTag())
+        else
           if hasPreciseSideEffect()
           then result = getSideEffects().getFirstInstruction()
           else result = getParent().getChildSuccessor(this)
       )
       or
       (
-        hasSideEffect() and
-        tag = CallSideEffectTag() and
+        hasReturnSideEffect(_) and
+        tag = CallReturnSideEffectTag() and
         if hasPreciseSideEffect()
         then result = getSideEffects().getFirstInstruction()
         else result = getParent().getChildSuccessor(this)
@@ -113,6 +133,16 @@ abstract class TranslatedCall extends TranslatedExpr {
     hasSideEffect() and
     operandTag instanceof SideEffectOperandTag and
     result = getEnclosingFunction().getUnmodeledDefinitionInstruction()
+    or
+    tag = CallReturnSideEffectTag() and
+    hasReturnSideEffect(_) and
+    (
+      operandTag instanceof SideEffectOperandTag and
+      result = getEnclosingFunction().getUnmodeledDefinitionInstruction()
+      or
+      operandTag instanceof AddressOperandTag and
+      result = getInstruction(CallTag())
+    )
   }
 
   final override CppType getInstructionOperandType(InstructionTag tag, TypedOperandTag operandTag) {
@@ -323,6 +353,11 @@ class TranslatedFunctionCall extends TranslatedCallExpr, TranslatedDirectCall {
 
   override predicate hasWriteSideEffect() {
     not expr.getTarget().(SideEffectFunction).hasOnlySpecificWriteSideEffects()
+  }
+
+  override predicate hasReturnSideEffect(CppType type) {
+    expr.getTarget().hasGlobalName("getenv") and //FIXME: make this configured separately
+    type = getUnknownType()
   }
 
   override Instruction getQualifierResult() {

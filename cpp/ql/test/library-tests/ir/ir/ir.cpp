@@ -1315,4 +1315,10 @@ int shortCircuitConditional(int x, int y) {
     return predicateA() && predicateB() ? x : y;
 }
 
+char *getenv(const char *name);
+
+char *getenvWrapper(char *name) {
+  return getenv(name);
+}
+
 // semmle-extractor-options: -std=c++17 --clang
