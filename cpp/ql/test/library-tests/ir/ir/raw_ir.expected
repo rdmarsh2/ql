@@ -7558,7 +7558,7 @@ ir.cpp:
 # 1321|     r1321_5(char *)         = Convert                      : r1321_4
 # 1321|     r1321_6(char *)         = Call                         : func:r1321_2, 0:r1321_5
 # 1321|     mu1321_7(unknown)       = ^CallSideEffect              : ~mu1320_4
-# 1321|     r1321_8(unknown)        = ^ReturnSideEffect            : &:r1321_6, ~mu1320_4
+# 1321|     mu1321_8(unknown)       = ^ReturnSideEffect            : &:r1321_6, ~mu1320_4
 # 1321|     v1321_9(void)           = ^BufferReadSideEffect[0]     : &:r1321_5, ~mu1320_4
 # 1321|     mu1321_10(unknown)      = ^BufferMayWriteSideEffect[0] : &:r1321_5
 # 1321|     mu1321_11(char *)       = Store                        : &:r1321_1, r1321_6

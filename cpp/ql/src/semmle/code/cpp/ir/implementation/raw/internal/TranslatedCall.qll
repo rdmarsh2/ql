@@ -232,6 +232,10 @@ abstract class TranslatedCall extends TranslatedExpr {
     hasSideEffect() and
     tag = CallSideEffectTag() and
     result = getResult()
+    or
+    hasReturnSideEffect(_) and
+    tag = CallReturnSideEffectTag() and
+    result = getResult()
   }
 
   predicate hasPreciseSideEffect() { exists(getSideEffects()) }

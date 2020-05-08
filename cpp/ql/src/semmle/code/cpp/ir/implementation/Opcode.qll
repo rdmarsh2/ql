@@ -703,6 +703,12 @@ module Opcode {
 
   class CallResultSideEffect extends SideEffectOpcode, MayWriteOpcode, TCallResultSideEffect {
     final override string toString() { result = "ReturnSideEffect" }
+    
+    final override MemoryAccessKind getWriteMemoryAccess() {
+      result instanceof IndirectMemoryAccess
+    }
+    
+    override predicate hasAddressOperand() { any() }
   }
 
   class InitializeDynamicAllocation extends SideEffectOpcode, EntireAllocationWriteOpcode,
