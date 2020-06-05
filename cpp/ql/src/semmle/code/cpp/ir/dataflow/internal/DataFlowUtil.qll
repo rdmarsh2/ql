@@ -197,16 +197,16 @@ class ParameterNode extends InstructionNode {
 private class ExplicitParameterNode extends ParameterNode {
   override InitializeParameterInstruction instr;
 
-  ExplicitParameterNode() { exists(instr.getParameter()) }
+  ExplicitParameterNode() { exists(instr.getASTParameter()) }
 
   override predicate isParameterOf(Function f, int pos) {
-    f.getParameter(pos) = instr.getParameter()
+    f.getParameter(pos) = instr.getASTParameter()
   }
 
   /** Gets the `Parameter` associated with this node. */
-  Parameter getParameter() { result = instr.getParameter() }
+  Parameter getParameter() { result = instr.getASTParameter() }
 
-  override string toString() { result = instr.getParameter().toString() }
+  override string toString() { result = instr.getASTParameter().toString() }
 }
 
 /** An implicit `this` parameter. */
@@ -227,14 +227,8 @@ class ParameterIndirectionNode extends ParameterNode {
   override InitializeIndirectionInstruction instr;
 
   override predicate isParameterOf(Function f, int pos) {
-    exists(int index |
-      f.getParameter(index) = instr.getParameter()
-      or
-      index = -1 and
-      instr.getIRVariable().(IRThisVariable).getEnclosingFunction() = f
-    |
-      pos = getArgumentPosOfSideEffect(index)
-    )
+    instr.getEnclosingFunction() = f and
+    pos = getArgumentPosOfSideEffect(instr.getIndex())
   }
 
   override string toString() { result = "*" + instr.getIRVariable().toString() }
@@ -521,7 +515,7 @@ private predicate simpleInstructionLocalFlowStep(Instruction iFrom, Instruction 
     // Check that the types match. Otherwise we can get flow from an object to
     // its fields, which leads to field conflation when there's flow from other
     // fields to the object elsewhere.
-    init.getParameter().getType().getUnspecifiedType().(DerivedType).getBaseType() =
+    init.getIRVariable().getType().getUnspecifiedType().(DerivedType).getBaseType() =
       iTo.getResultType().getUnspecifiedType()
   )
   or

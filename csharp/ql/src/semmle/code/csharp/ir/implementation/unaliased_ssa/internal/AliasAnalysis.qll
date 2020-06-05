@@ -201,7 +201,7 @@ private predicate isArgumentForParameter(CallInstruction ci, Operand operand, In
     ci = operand.getUse() and
     f = ci.getStaticCallTarget() and
     (
-      init.(InitializeParameterInstruction).getParameter() =
+      init.(InitializeParameterInstruction).getASTParameter() =
         f.getParameter(operand.(PositionalArgumentOperand).getIndex())
       or
       init.(InitializeParameterInstruction).getIRVariable() instanceof IRThisVariable and

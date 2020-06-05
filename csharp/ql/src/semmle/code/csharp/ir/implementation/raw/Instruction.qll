@@ -456,15 +456,23 @@ class VariableAddressInstruction extends VariableInstruction {
 }
 
 class InitializeParameterInstruction extends VariableInstruction {
+  override IRParameter var;
+
   InitializeParameterInstruction() { getOpcode() instanceof Opcode::InitializeParameter }
 
-  final Language::Parameter getParameter() { result = var.(IRUserVariable).getVariable() }
+  final Language::Parameter getASTParameter() { result = var.(IRUserVariable).getVariable() }
+
+  final int getIndex() { result = var.getIndex() }
 }
 
 class InitializeIndirectionInstruction extends VariableInstruction {
+  override IRParameter var;
+
   InitializeIndirectionInstruction() { getOpcode() instanceof Opcode::InitializeIndirection }
 
-  final Language::Parameter getParameter() { result = var.(IRUserVariable).getVariable() }
+  final Language::Parameter getASTParameter() { result = var.(IRUserVariable).getVariable() }
+
+  final int getIndex() { result = var.getIndex() }
 }
 
 /**
@@ -526,6 +534,8 @@ class ReturnValueInstruction extends ReturnInstruction {
 }
 
 class ReturnIndirectionInstruction extends VariableInstruction {
+  override IRParameter var;
+
   ReturnIndirectionInstruction() { getOpcode() instanceof Opcode::ReturnIndirection }
 
   final SideEffectOperand getSideEffectOperand() { result = getAnOperand() }
@@ -540,12 +550,14 @@ class ReturnIndirectionInstruction extends VariableInstruction {
    * Gets the parameter for which this instruction reads the final pointed-to value within the
    * function.
    */
-  final Language::Parameter getParameter() { result = var.(IRUserVariable).getVariable() }
+  final Language::Parameter getASTParameter() { result = var.(IRUserVariable).getVariable() }
 
   /**
    * Holds if this instruction is the return indirection for `this`.
    */
   final predicate isThisIndirection() { var instanceof IRThisVariable }
+
+  final int getIndex() { result = var.getIndex() }
 }
 
 class CopyInstruction extends Instruction {

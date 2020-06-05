@@ -281,9 +281,9 @@ private predicate instructionTaintStep(Instruction i1, Instruction i2) {
   or
   // Until we have from through indirections across calls, we'll take flow out
   // of the parameter and into its indirection.
-  exists(IRFunction f, Parameter parameter |
-    i1 = getInitializeParameter(f, parameter) and
-    i2 = getInitializeIndirection(f, parameter)
+  exists(IRFunction f, int index |
+    i1 = getInitializeParameter(f, index) and
+    i2 = getInitializeIndirection(f, index)
   )
   or
   // Until we have flow through indirections across calls, we'll take flow out
@@ -322,14 +322,14 @@ private predicate instructionTaintStep(Instruction i1, Instruction i2) {
 }
 
 pragma[noinline]
-private InitializeIndirectionInstruction getInitializeIndirection(IRFunction f, Parameter p) {
-  result.getParameter() = p and
+private InitializeIndirectionInstruction getInitializeIndirection(IRFunction f, int i) {
+  result.getIndex() = i and
   result.getEnclosingIRFunction() = f
 }
 
 pragma[noinline]
-private InitializeParameterInstruction getInitializeParameter(IRFunction f, Parameter p) {
-  result.getParameter() = p and
+private InitializeParameterInstruction getInitializeParameter(IRFunction f, int i) {
+  result.getIndex() = i and
   result.getEnclosingIRFunction() = f
 }
 
