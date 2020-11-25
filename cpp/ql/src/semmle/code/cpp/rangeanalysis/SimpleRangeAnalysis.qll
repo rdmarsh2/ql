@@ -244,8 +244,10 @@ private class UnsignedAssignMulExpr extends AssignMulExpr {
   }
 }
 
-/** Set of expressions which we know how to analyze. */
-private predicate analyzableExpr(Expr e) {
+/** Set of expressions which we know how to analyze, without taking into account unanalyzable
+ * subexpressions or def/use flow.
+ */
+private predicate analyzableExprSimple(Expr e) {
   // The type of the expression must be arithmetic. We reuse the logic in
   // `exprMinVal` to check this.
   exists(exprMinVal(e)) and
@@ -304,6 +306,109 @@ private predicate analyzableExpr(Expr e) {
 }
 
 /**
+ * An expression that isn't analyzable, or that depends on a subexpression that isn't analyzable.
+ * 
+ * This predicate matches the structure of `getLowerBoundsImpl` and `getUpperBoundsImpl`.
+ */
+private predicate overflowingExprSimple(Expr e) {
+  exists(exprMinVal(e)) and
+  not analyzableExprSimple(e)
+  or
+  exists(Expr operand |
+    effectivelyMultipliesByNegative(e, operand, _) and
+    overflowingExprSimple(operand)
+  )
+  or
+  exists(Expr operand |
+    effectivelyMultipliesByPositive(e, operand, _) and
+    overflowingExprSimple(operand)
+  )
+  or
+  exists(MinExpr minExpr | e = minExpr | overflowingExprSimple(minExpr.getAnOperand()))
+  or
+  exists(MaxExpr maxExpr | e = maxExpr | overflowingExprSimple(maxExpr.getAnOperand()))
+  or
+  exists(ConditionalExpr condExpr | e = condExpr |
+    overflowingExprSimple(condExpr.getAnOperand())
+  )
+  or
+  exists(AddExpr addExpr | e = addExpr | overflowingExprSimple(addExpr.getAnOperand()))
+  or
+  exists(SubExpr subExpr | e = subExpr | overflowingExprSimple(subExpr.getAnOperand()))
+  or
+  exists(UnsignedMulExpr mulExpr | e = mulExpr |
+    overflowingExprSimple(mulExpr.getAnOperand())
+  )
+  or
+  exists(AssignExpr addExpr | e = addExpr | overflowingExprSimple(addExpr.getRValue()))
+  or
+  exists(AssignAddExpr addExpr | e = addExpr |
+    overflowingExprSimple(addExpr.getAnOperand())
+  )
+  or
+  exists(AssignSubExpr subExpr | e = subExpr |
+    overflowingExprSimple(subExpr.getAnOperand())
+  )
+  or
+  exists(UnsignedAssignMulExpr mulExpr | e = mulExpr |
+    overflowingExprSimple(mulExpr.getAnOperand())
+  )
+  or
+  exists(AssignMulByConstantExpr mulExpr | e = mulExpr |
+    overflowingExprSimple(mulExpr.getLValue())
+  )
+  or
+  exists(CrementOperation crementExpr | e = crementExpr |
+    overflowingExprSimple(crementExpr.getOperand())
+  )
+  or
+  exists(RemExpr remExpr | e = remExpr | overflowingExprSimple(remExpr.getAnOperand()))
+  or
+  exists(Conversion convExpr | e = convExpr | overflowingExprSimple(convExpr.getExpr()))
+  or
+  // unsigned `&`
+  exists(UnsignedBitwiseAndExpr andExpr |
+    andExpr = e and
+    overflowingExprSimple(andExpr.getAnOperand())
+  )
+  or
+  // `>>` by a constant
+  exists(RShiftExpr rs |
+    rs = e and
+    exists(getValue(rs.getRightOperand())) and
+    overflowingExprSimple(rs.getLeftOperand())
+  )
+  or
+  // A modeled expression for range analysis
+  exists(SimpleRangeAnalysisExpr rae | rae = e |
+    exists(Expr child |
+      rae.dependsOnChild(child) and
+      overflowingExprSimple(child)
+    )
+  )
+}
+
+/**
+ * An expression that isn't analyzable or that depends on an expression that isn't analyzable,
+ * including via def/use flow.
+ */
+private predicate overflowingExpr(Expr e) {
+  overflowingExprSimple(e) or
+  exists(RangeSsaDefinition def, StackVariable v, RangeSsaDefinition srcDef, StackVariable srcVar |
+    overflowingExprSimple(srcDef) and
+    defDependsOnDefTransitively(def, v, srcDef, srcVar) and
+    exprDependsOnDef(e, def, v)
+  )
+}
+
+/**
+ * 
+ */
+private predicate analyzableExpr(Expr e) {
+  not overflowingExpr(e)
+}
+
+/**
  * Set of definitions that this definition depends on. The transitive
  * closure of this relation is used to detect definitions which are
  * recursively defined, so that we can prevent the analysis from exploding.
@@ -322,7 +427,8 @@ private predicate defDependsOnDef(
   or
   // Assignment operations with a defining value
   exists(AssignOperation assignOp |
-    analyzableExpr(assignOp) and
+    // we can't use analyzableExpr because of negative recursion.
+    analyzableExprSimple(assignOp) and
     def = assignOp and
     def.getAVariable() = v and
     exprDependsOnDef(assignOp, srcDef, srcVar)
